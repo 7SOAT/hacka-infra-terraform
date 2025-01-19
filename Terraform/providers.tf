@@ -14,5 +14,7 @@ provider "aws" {
     cognitoidentity         = var.aws_endpoint
     cognitoidentityprovider = var.aws_endpoint
     dynamodb                = var.aws_endpoint 
+    lambda                  = var.aws_endpoint
+    iam                     = var.aws_endpoint 
   }
 }

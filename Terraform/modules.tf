@@ -14,3 +14,7 @@ module "network" {
 module "persistence" {
   source = "./modules/persistence"
 }
+
+module "identity" {
+  source = "./modules/identity"
+}
