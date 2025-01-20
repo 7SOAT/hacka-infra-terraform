@@ -4,8 +4,8 @@ variable "frame_extractor_s3_bucket" {
   default     = "frame-extractor-storage"
 }
 
-variable "lambda_functions_s3_bucket" {
+variable "lambda_functions_s3_folder" {
   description = "Storage principal para armazenamento do código fonte das lambdas."
-  type        = string
-  default     = "lambda-source-storage"
+  type        = string  
+  default     = "lambda-functions-storage"
 }

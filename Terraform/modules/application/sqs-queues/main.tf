@@ -1,6 +1,6 @@
 resource "aws_sqs_queue" "frame_extractor_queue" {
   name                      = "${var.frame_extractor_queue_name}-queue"
-  delay_seconds             = 90
+  delay_seconds             = 0
   max_message_size          = 2048
   message_retention_seconds = 86400
   receive_wait_time_seconds = 10
@@ -12,9 +12,10 @@ resource "aws_sqs_queue" "frame_extractor_queue" {
 }
 
 resource "aws_sqs_queue" "frame_extractor_delay" {
-  name = "${var.frame_extractor_queue_name}-delay"
+  name          = "${var.frame_extractor_queue_name}-delay"
+  delay_seconds = 15
 
-  redrive_policy = jsonencode({
+  redrive_policy        = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.frame_extractor_dlq.arn,
     maxReceiveCount     = 5
   })
