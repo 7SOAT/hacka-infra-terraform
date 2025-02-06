@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "videos" {
-  name           = "videos-table"
+  name           = var.videos_table_name
   billing_mode   = "PAY_PER_REQUEST"  
   hash_key       = "videoId"
   range_key      = "userId"
