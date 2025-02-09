@@ -18,5 +18,17 @@ variable "eks_cluster_subnets_ids" {
 variable "frame_extractor_queue_name" {
   type    = string
   description = "Nome da fila de processamento de videos."
-  default = "frame-extractor"
+  default = "afluga-hacka-video-processing"
+}
+
+variable "notification_queue_name" {
+  type    = string
+  description = "Nome da fila de processamento de videos."
+  default = "afluga-hacka-notification"
+}
+
+variable "cognito_redirect_uri" {
+  type = string
+  description = "URL default para redirecionamento para o frontend."
+  default = "https://google.com"
 }

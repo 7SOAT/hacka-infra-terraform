@@ -23,3 +23,18 @@ resource "aws_eks_node_group" "api" {
   }
 
 }
+
+resource "aws_eks_node_group" "consumer" {
+  cluster_name    = aws_eks_cluster.application.name
+  node_group_name = "consumer-node-group"
+  node_role_arn   = var.iam_labrole_arn
+  subnet_ids      = var.eks_cluster_subnets_ids
+  instance_types = ["t3.medium"]
+
+  scaling_config {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
+
+}

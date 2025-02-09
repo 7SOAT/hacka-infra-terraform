@@ -10,6 +10,7 @@ resource "aws_api_gateway_rest_api" "backend" {
     Name = "backend-apigw"
   }
 }
+
 resource "aws_api_gateway_rest_api" "bff" {
   name        = "bff-apigw"
   description = "BFF service API Gateway used for EKS. Managed by Terraform."
@@ -19,25 +20,45 @@ resource "aws_api_gateway_rest_api" "bff" {
 }
 #endregion
 #region [RESOURCES]
-resource "aws_api_gateway_resource" "v1" {
+resource "aws_api_gateway_resource" "backend_v1" {
   rest_api_id = aws_api_gateway_rest_api.backend.id
   parent_id   = aws_api_gateway_rest_api.backend.root_resource_id
+  path_part   = "v1"
+}
+resource "aws_api_gateway_resource" "bff_v1" {
+  rest_api_id = aws_api_gateway_rest_api.bff.id
+  parent_id   = aws_api_gateway_rest_api.bff.root_resource_id
   path_part   = "v1"
 }
 #endregion
 
 #region [METHODS]
 # Criando um método ANY na raiz para evitar erro "The REST API doesn't contain any methods"
-resource "aws_api_gateway_method" "root_any" {
+resource "aws_api_gateway_method" "backend_root_any" {
   rest_api_id   = aws_api_gateway_rest_api.backend.id
   resource_id   = aws_api_gateway_rest_api.backend.root_resource_id
   http_method   = "ANY"
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_method" "v1_any" {
+resource "aws_api_gateway_method" "backend_v1_any" {
   rest_api_id   = aws_api_gateway_rest_api.backend.id
-  resource_id   = aws_api_gateway_resource.v1.id
+  resource_id   = aws_api_gateway_resource.backend_v1.id
+  http_method   = "ANY"
+  authorization = "NONE"
+  
+}
+
+resource "aws_api_gateway_method" "bff_root_any" {
+  rest_api_id   = aws_api_gateway_rest_api.bff.id
+  resource_id   = aws_api_gateway_rest_api.bff.root_resource_id
+  http_method   = "ANY"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "bff_v1_any" {
+  rest_api_id   = aws_api_gateway_rest_api.bff.id
+  resource_id   = aws_api_gateway_resource.bff_v1.id
   http_method   = "ANY"
   authorization = "NONE"
 }
@@ -45,10 +66,10 @@ resource "aws_api_gateway_method" "v1_any" {
 
 #region [INTEGRATIONS]
 # Integração MOCK para a raiz "/"
-resource "aws_api_gateway_integration" "root_mock" {
+resource "aws_api_gateway_integration" "backend_root_mock" {
   rest_api_id   = aws_api_gateway_rest_api.backend.id
   resource_id   = aws_api_gateway_rest_api.backend.root_resource_id
-  http_method   = aws_api_gateway_method.root_any.http_method
+  http_method   = aws_api_gateway_method.backend_root_any.http_method
   type          = "MOCK"
 
   request_templates = {
@@ -57,10 +78,10 @@ resource "aws_api_gateway_integration" "root_mock" {
 }
 
 # Integração MOCK para "/v1"
-resource "aws_api_gateway_integration" "mock" {
+resource "aws_api_gateway_integration" "backend_mock" {
   rest_api_id   = aws_api_gateway_rest_api.backend.id
-  resource_id   = aws_api_gateway_resource.v1.id
-  http_method   = aws_api_gateway_method.v1_any.http_method
+  resource_id   = aws_api_gateway_resource.backend_v1.id
+  http_method   = aws_api_gateway_method.backend_v1_any.http_method
   type          = "MOCK"
 
   request_templates = {
@@ -69,31 +90,82 @@ resource "aws_api_gateway_integration" "mock" {
 }
 
 # Resposta para a integração da raiz "/"
-resource "aws_api_gateway_integration_response" "root_mock" {
+resource "aws_api_gateway_integration_response" "backend_root_mock" {
   rest_api_id = aws_api_gateway_rest_api.backend.id
   resource_id = aws_api_gateway_rest_api.backend.root_resource_id
-  http_method = aws_api_gateway_method.root_any.http_method
+  http_method = aws_api_gateway_method.backend_root_any.http_method
   status_code = "200"
 
   response_templates = {
     "application/json" = jsonencode({ message = "API Gateway provisionado com sucesso (ROOT)" })
   }
 
-  depends_on = [aws_api_gateway_integration.root_mock]
+  depends_on = [aws_api_gateway_integration.backend_root_mock]
 }
 
 # Resposta para a integração "/v1"
-resource "aws_api_gateway_integration_response" "mock" {
+resource "aws_api_gateway_integration_response" "backend_mock" {
   rest_api_id = aws_api_gateway_rest_api.backend.id
-  resource_id = aws_api_gateway_resource.v1.id
-  http_method = aws_api_gateway_method.v1_any.http_method
+  resource_id = aws_api_gateway_resource.backend_v1.id
+  http_method = aws_api_gateway_method.backend_v1_any.http_method
   status_code = "200"
 
   response_templates = {
     "application/json" = jsonencode({ message = "API Gateway provisionado com sucesso" })
   }
 
-  depends_on = [aws_api_gateway_integration.mock]
+  depends_on = [aws_api_gateway_integration.backend_mock]
+}
+
+resource "aws_api_gateway_integration" "bff_root_mock" {
+  rest_api_id   = aws_api_gateway_rest_api.bff.id
+  resource_id   = aws_api_gateway_rest_api.bff.root_resource_id
+  http_method   = aws_api_gateway_method.bff_root_any.http_method
+  type          = "MOCK"
+
+  request_templates = {
+    "application/json" = jsonencode({ statusCode = 200 })
+  }
+}
+
+# Integração MOCK para "/v1"
+resource "aws_api_gateway_integration" "bff_mock" {
+  rest_api_id   = aws_api_gateway_rest_api.bff.id
+  resource_id   = aws_api_gateway_resource.bff_v1.id
+  http_method   = aws_api_gateway_method.bff_v1_any.http_method
+  type          = "MOCK"
+
+  request_templates = {
+    "application/json" = jsonencode({ statusCode = 200 })
+  }
+}
+
+# Resposta para a integração da raiz "/"
+resource "aws_api_gateway_integration_response" "bff_root_mock" {
+  rest_api_id = aws_api_gateway_rest_api.bff.id
+  resource_id = aws_api_gateway_rest_api.bff.root_resource_id
+  http_method = aws_api_gateway_method.bff_root_any.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = jsonencode({ message = "API Gateway provisionado com sucesso (ROOT)" })
+  }
+
+  depends_on = [aws_api_gateway_integration.bff_root_mock]
+}
+
+# Resposta para a integração "/v1"
+resource "aws_api_gateway_integration_response" "bff_mock" {
+  rest_api_id = aws_api_gateway_rest_api.bff.id
+  resource_id = aws_api_gateway_resource.bff_v1.id
+  http_method = aws_api_gateway_method.bff_v1_any.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = jsonencode({ message = "API Gateway provisionado com sucesso" })
+  }
+
+  depends_on = [aws_api_gateway_integration.bff_mock]
 }
 #endregion
 #region [DEPLOYMENTS]
@@ -110,11 +182,32 @@ resource "aws_api_gateway_deployment" "backend" {
   }
 
   depends_on = [
-    aws_api_gateway_integration.root_mock,
-    aws_api_gateway_integration.mock,
-    aws_api_gateway_integration_response.root_mock,
-    aws_api_gateway_integration_response.mock,
-    aws_api_gateway_method.root_any
+    aws_api_gateway_integration.backend_root_mock,
+    aws_api_gateway_integration.backend_mock,
+    aws_api_gateway_integration_response.backend_root_mock,
+    aws_api_gateway_integration_response.backend_mock,
+    aws_api_gateway_method.backend_root_any
+  ]
+}
+
+resource "aws_api_gateway_deployment" "bff" {
+  rest_api_id = aws_api_gateway_rest_api.bff.id
+
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.bff.body))
+    auto_deploy  = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  depends_on = [
+    aws_api_gateway_integration.bff_root_mock,
+    aws_api_gateway_integration.bff_mock,
+    aws_api_gateway_integration_response.bff_root_mock,
+    aws_api_gateway_integration_response.bff_mock,
+    aws_api_gateway_method.bff_root_any
   ]
 }
 #endregion
@@ -122,6 +215,12 @@ resource "aws_api_gateway_deployment" "backend" {
 resource "aws_api_gateway_stage" "backend" {
   deployment_id = aws_api_gateway_deployment.backend.id
   rest_api_id   = aws_api_gateway_rest_api.backend.id
+  stage_name    = "prd"
+}
+
+resource "aws_api_gateway_stage" "bff" {
+  deployment_id = aws_api_gateway_deployment.bff.id
+  rest_api_id   = aws_api_gateway_rest_api.bff.id
   stage_name    = "prd"
 }
 #endregion
