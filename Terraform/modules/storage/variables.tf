@@ -1,7 +1,13 @@
-variable "frame_extractor_s3_bucket" {
+variable "videos_s3_bucket" {
   description = "Storage principal para armazenamento dos arquivos."
   type        = string  
-  default     = "frame-extractor-storage"
+  default     = "afluga-hacka-videos-storage"
+}
+
+variable "frames_s3_bucket" {
+  description = "Storage principal para armazenamento dos arquivos."
+  type        = string  
+  default     = "afluga-hacka-frames-storage"
 }
 
 # variable "lambda_functions_s3_folder" {

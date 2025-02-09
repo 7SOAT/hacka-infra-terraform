@@ -14,14 +14,14 @@ variable "aws_access_key" {
   description = "AWS Access Key ID"
   type        = string
   sensitive   = true
-  default = "ASIAV5ZCLZ2UWFOC6W4M"
+  default = "ASIAV5ZCLZ2UYW4L36NN"
 }
 
 variable "aws_secret_key" {
   description = "AWS Secret Access Key"
   type        = string
   sensitive   = true  
-  default = "cOx8qqjzTrGkLbI+4eXHJHO8SIzCv+lN9ZXvr3KB"
+  default = "rpPYxw8SuL4ZqGGf4Lh3uEv1tIVKNAWaT6h6zwWl"
 }
 
 variable "aws_endpoint" {
