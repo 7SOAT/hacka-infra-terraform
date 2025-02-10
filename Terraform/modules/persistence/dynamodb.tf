@@ -1,11 +1,11 @@
 resource "aws_dynamodb_table" "videos" {
   name           = var.videos_table_name
   billing_mode   = "PAY_PER_REQUEST"  
-  hash_key       = "videoId"
+  hash_key       = "id"
   range_key      = "userId"
 
   attribute {
-    name = "videoId"
+    name = "id"
     type = "S"
   }
 
@@ -23,6 +23,6 @@ resource "aws_dynamodb_table" "videos" {
     name               = "userId-index"
     hash_key           = "userId"    
     projection_type    = "INCLUDE"
-    non_key_attributes = ["videoId"]
+    non_key_attributes = ["id"]
   }
 }
